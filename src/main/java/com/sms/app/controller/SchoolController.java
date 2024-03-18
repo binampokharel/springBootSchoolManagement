@@ -1,7 +1,9 @@
 package com.sms.app.controller;
 
+import com.sms.app.dto.SchoolNameAndStudentNameResponseDTO;
 import com.sms.app.model.School;
 import com.sms.app.repository.SchoolRepository;
+import com.sms.app.service.SchoolAndStudentDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +19,9 @@ public class SchoolController {
 
     @Autowired
     private SchoolRepository schoolRepository;
+
+    @Autowired
+    SchoolAndStudentDetailServiceImpl schoolAndStudentDetailService;
 
     @PostMapping("/saveSchoolInfo")
     public ResponseEntity<?> createStudent(@RequestBody School schoolRequestBody) {
@@ -81,6 +86,27 @@ public class SchoolController {
             }
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("getSchoolAndStudent")
+    public ResponseEntity<List<SchoolNameAndStudentNameResponseDTO>> retrieveSchoolNameAndStudent(){
+        List<SchoolNameAndStudentNameResponseDTO> returningList = schoolAndStudentDetailService.findSchoolNameAndStudent();
+        return new ResponseEntity<>(returningList,HttpStatus.OK);
+    }
+
+    @GetMapping("/schoolByName/{name}")
+    public ResponseEntity<?>getSchoolNameContains(@PathVariable("name") String name) {
+        try {
+            System.out.println("name"+name);
+            List<School> _school = schoolRepository.findByName(name);
+            if(_school.size()>0){
+                return new ResponseEntity<>(_school, HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(_school, HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
